@@ -23,7 +23,11 @@ var options = {
   entry: {
     popup: path.join(__dirname, "src", "js", "popup.js"),
     options: path.join(__dirname, "src", "js", "options.js"),
-    background: path.join(__dirname, "src", "js", "background.js")
+    background: path.join(__dirname, "src", "js", "background.js"),
+    getDynalistInfo: path.join(__dirname, "src", "js", "getDynalistInfo.js"),
+  },
+  chromeExtensionBoilerplate: {
+    notHotReload: ["getDynalistInfo"]
   },
   output: {
     path: path.join(__dirname, "build"),
@@ -37,7 +41,7 @@ var options = {
         exclude: /node_modules/
       },
       {
-        test: new RegExp('.(' + fileExtensions.join('|') + ')$'),
+        test: new RegExp('\.(' + fileExtensions.join('|') + ')$'),
         loader: "file-loader?name=[name].[ext]",
         exclude: /node_modules/
       },
@@ -45,28 +49,34 @@ var options = {
         test: /\.html$/,
         loader: "html-loader",
         exclude: /node_modules/
+      },
+      {
+        test: /\.(js|jsx)$/,
+        loader: "babel-loader",
+        exclude: /node_modules/
       }
     ]
   },
   resolve: {
-    alias: alias
+    alias: alias,
+    extensions: fileExtensions.map(extension => ("." + extension)).concat([".jsx", ".js", ".css"])
   },
   plugins: [
     // clean the build folder
     new CleanWebpackPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
-    new CopyWebpackPlugin([{
-      from: "src/manifest.json",
-      transform: function (content, path) {
-        // generates the manifest file using the package.json informations
-        return Buffer.from(JSON.stringify({
-          description: process.env.npm_package_description,
-          version: process.env.npm_package_version,
-          ...JSON.parse(content.toString())
-        }))
-      }
-    }]),
+    // new CopyWebpackPlugin([{
+    //   from: "src/manifest.json",
+    //   transform: function (content, path) {
+    //     // generates the manifest file using the package.json informations
+    //     return Buffer.from(JSON.stringify({
+    //       description: process.env.npm_package_description,
+    //       version: process.env.npm_package_version,
+    //       ...JSON.parse(content.toString())
+    //     }))
+    //   }
+    // }]),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup.html"),
       filename: "popup.html",
