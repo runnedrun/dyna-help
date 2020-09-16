@@ -13,14 +13,5 @@
   },
   "manifest_version": 2,
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-  "content_scripts": [
-    {
-      "matches": [
-        "https://*.dynalist.io/*"
-      ],
-      "js": [
-        "getDynalistInfo.bundle.js"
-      ]
-    }
-  ]
+  "permissions": ["activeTab", "tabs", "webNavigation", "https://*.dynalist.io/*"]
 }
