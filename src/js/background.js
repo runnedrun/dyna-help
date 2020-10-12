@@ -1,5 +1,8 @@
 import "../img/icon-128.png";
 import "../img/icon-34.png";
+import messages from "./messages"
+import secrets from "../secrets.development.js";
+console.log("secrests", secrets)
 
 // chrome.runtime.getURL("myfile.html")
 
@@ -24,6 +27,13 @@ chrome.webNavigation.onCompleted.addListener(
   },
   { url: [{ hostContains: "dynalist.io" }] }
 );
+
+messages.subscribe(event => {
+  if (event.activeSearch) {
+    window.localStorage["activeSearch"] = event.activeSearch
+  }
+  // event.async = true;  
+});
 
 // chrome.tabs.onUpdated.addListener((id, tabInfo, tab) => {
 //   console.log("cheking!", tab.pendingUrl && tab.pendingUrl, tab);
