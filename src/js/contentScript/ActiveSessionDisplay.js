@@ -15,10 +15,8 @@ const eventFire = (el, etype) => {
   }
 };
 
-dispatchMouseEvent = (el) => {
+const dispatchMouseEvent = (el) => {
   const elPosition = el.getBoundingClientRect();
-
-  console.log("elPosit", elPosition)
 
   var event = new MouseEvent("mousedown", {
     view: window,
@@ -31,7 +29,7 @@ dispatchMouseEvent = (el) => {
   el.dispatchEvent(event);
 };
 
-finishActiveNote = () => {
+const finishActiveNote = () => {
   const parentNote = document.querySelector(
     ".Node-renderedContent.node-line"
   );
@@ -45,8 +43,7 @@ const parentNoteContent = document.querySelector(
     setTimeout(() => {
       parentNoteContent.innerHTML = parentNoteContent.innerHTML + " testing";
       setTimeout(() => {
-        console.log("ritining keydown");
-        eventFire(parentNote, "keypress");
+        eventFire(parentNoteContent, "keydown");
       }, 100);
     }, 100);
   }, 100);
