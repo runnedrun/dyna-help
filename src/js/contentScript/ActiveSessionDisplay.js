@@ -2,51 +2,47 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useSearchStore } from "./searchStore";
 import moment from "moment";
+import updateParentNoteWithTransformer from "./updateParentNoteWithTransformer";
 
 const itemTimeLimit = 3 * 60 * 1000;
 
-const eventFire = (el, etype) => {
-  if (el.fireEvent) {
-    el.fireEvent("on" + etype);
-  } else {
-    var evObj = document.createEvent("Events");
-    evObj.initEvent(etype, true, false);
-    el.dispatchEvent(evObj);
-  }
-};
+const reviewSpacing = [1, 2, 5, 7, 14, 28, 72, 180];
 
-const dispatchMouseEvent = (el) => {
-  const elPosition = el.getBoundingClientRect();
+const sampleContent = "#morning 4  second rule. !(2020-10-14)+1";
+const dateFormat = "YYYY-MM-DD";
 
-  var event = new MouseEvent("mousedown", {
-    view: window,
-    bubbles: true,
-    cancelable: true,
-    screenX: elPosition.left,
-    screenY: elPosition.top,
-  });
-
-  el.dispatchEvent(event);
-};
-
-const finishActiveNote = () => {
-  const parentNote = document.querySelector(
-    ".Node-renderedContent.node-line"
+function replaceRange(originalString, start, end, substitute) {
+  return (
+    originalString.substring(0, start) +
+    substitute +
+    originalString.substring(end)
   );
+}
 
-const parentNoteContent = document.querySelector(
-    ".Node-content.node-line.needsclick"
-  );  
-  // eventFire(parentNote, "blur");
-  setTimeout(() => {
-    dispatchMouseEvent(parentNote);
-    setTimeout(() => {
-      parentNoteContent.innerHTML = parentNoteContent.innerHTML + " testing";
-      setTimeout(() => {
-        eventFire(parentNoteContent, "keydown");
-      }, 100);
-    }, 100);
-  }, 100);
+const updateDateForNote2 = (noteContent) => {
+  const dateRegex = /!\((.*)\)\+(\d)?/;
+  const dateMatch = dateRegex.exec(noteContent);
+  if (dateMatch) {
+    const fullMatch = dateMatch[0];
+    const dateString = dateMatch[1];
+    const lastWaitInterval = parseInt(dateMatch[2]);
+    const startIndex = dateMatch.index;
+    const endIndex = startIndex + fullMatch.length;
+    const nextDateInterval = lastWaitInterval
+      ? reviewSpacing[reviewSpacing.indexOf(lastWaitInterval) + 1]
+      : reviewSpacing[0];
+    const date = moment(dateString, dateFormat);
+    const nextDate = date.add(nextDateInterval, "days");
+    const outputString = date.format(dateFormat);
+    const finalNoteText = replaceRange(
+      noteContent,
+      startIndex,
+      endIndex,
+      `!(${outputString})+${nextDateInterval}`
+    );
+
+    return finalNoteText
+  }
 };
 
 const ActiveSessionDisplay = () => {
