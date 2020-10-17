@@ -8,10 +8,8 @@ const StartButton = () => {
 
   if (searchData?.results?.length && !searchData?.activeItem) {
     const startSession = () => {
-      console.log("starting");
       const startingUrl = window.location.href;
       const navigationInterval = setInterval(() => {
-        console.log("hashy");
         const url = window.location.href;
         if (url !== startingUrl) {
           setSearch({

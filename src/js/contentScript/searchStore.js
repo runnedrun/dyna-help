@@ -22,7 +22,6 @@ const getAllResultsNodes = () => {
 };
 
 const hashChange = (clickedEl) => {
-  console.log("hashchagne");
   const hash = window.location.hash || "";
   const match = hash.match(/q=([^&]*)/);
   const query = match && match[1];
@@ -31,10 +30,7 @@ const hashChange = (clickedEl) => {
     // const parsedQuery = decodeURIComponent(query)
     // console.log("sending search", parsedQuery)
 
-    console.log("got a search and re=qrieting", hash)
-
     const resultsInterval = setInterval(() => {
-      console.log("reunnign inter")
       const results = getAllResultsNodes();
       if (results.length) {
         clearInterval(resultsInterval);
@@ -42,7 +38,7 @@ const hashChange = (clickedEl) => {
           query: window.location.href,
           processing: null,
           results: results,
-          bookmarkElement: clickedEl
+          bookmarkElement: clickedEl,
         });
       }
     }, 200);
@@ -50,12 +46,11 @@ const hashChange = (clickedEl) => {
 };
 
 window.document.addEventListener("click", (e) => {
-  console.log("e", e.target)
-  const clickedEl = e.target
+  const clickedEl = e.target;
   if (clickedEl?.className?.className?.contains("Bookmark")) {
     hashChange(clickedEl);
   }
-})
+});
 // window.addEventListener("hashchange", hashChange);
 
 const useSearchStore = () => [
