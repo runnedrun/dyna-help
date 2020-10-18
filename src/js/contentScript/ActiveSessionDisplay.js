@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSearchStore } from "./searchStore";
 import moment from "moment";
 import updateParentNoteWithTransformer from "./updateParentNoteWithTransformer";
+import { GlobalHotKeys } from "react-hotkeys";
 
 const itemTimeLimit = 3 * 60 * 1000;
 
@@ -20,18 +21,18 @@ function replaceRange(originalString, start, end, substitute) {
 }
 
 const getUpdatedTextForNote = (noteContent) => {
+  const isSSR = noteContent.includes("#ssr") || noteContent.includes("#SSR");
   const dateRegex = /!\((.*)\)+(\+(\d))?/;
   const dateMatch = dateRegex.exec(noteContent);
-  if (dateMatch) {
+  if (dateMatch && isSSR) {
     const fullMatch = dateMatch[0];
-    const dateString = dateMatch[1];
     const lastWaitInterval = parseInt(dateMatch[3]);
     const startIndex = dateMatch.index;
     const endIndex = startIndex + fullMatch.length;
     const nextDateInterval = lastWaitInterval
       ? reviewSpacing[reviewSpacing.indexOf(lastWaitInterval) + 1]
       : reviewSpacing[0];
-    const date = moment(dateString, dateFormat);
+    const today = moment();
     const nextDate = date.add(nextDateInterval, "days");
     const outputString = date.format(dateFormat);
     const finalNoteText = replaceRange(
@@ -44,7 +45,7 @@ const getUpdatedTextForNote = (noteContent) => {
     return finalNoteText;
   }
 
-  return noteContent
+  return null;
 };
 
 const ActiveSessionDisplay = () => {
@@ -52,9 +53,11 @@ const ActiveSessionDisplay = () => {
   const [currentTime, setCurrentTime] = useState();
 
   const finishItem = () => {
-    updateParentNoteWithTransformer(getUpdatedTextForNote).then(() => {
-      setSearch({ ...searchData, activeItem: null, itemStartedAt: null });
-      searchData.bookmarkElement.click();
+    updateParentNoteWithTransformer(getUpdatedTextForNote).then((finished) => {
+      if (finished) {
+        setSearch({ ...searchData, activeItem: null, itemStartedAt: null });
+        searchData?.bookmarkElement?.click();
+      }
     });
   };
 
@@ -79,15 +82,20 @@ const ActiveSessionDisplay = () => {
       .utc(moment.duration(timeRemaining).asMilliseconds())
       .format("m:ss");
     return (
-      <div style={{ display: "flex" }}>
-        <div
-          style={{ padding: 5, border: "1px solid black", marginRight: 10 }}
-          onClick={finishItem}
-        >
-          Finish
+      <GlobalHotKeys
+        keyMap={{ FINISH_NOTE: { sequence: "Meta+Shift+l", action: "keyup" } }}
+        handlers={{ FINISH_NOTE: finishItem }}
+      >
+        <div style={{ display: "flex" }}>
+          <div
+            style={{ padding: 5, border: "1px solid black", marginRight: 10 }}
+            onClick={finishItem}
+          >
+            Finish
+          </div>
+          <div>{formatted}</div>
         </div>
-        <div>{formatted}</div>
-      </div>
+      </GlobalHotKeys>
     );
   } else {
     return "";
