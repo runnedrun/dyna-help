@@ -1,10 +1,9 @@
 import React from "react";
 import { useSearchStore } from "./searchStore";
+import { GlobalHotKeys } from "react-hotkeys";
 
 const StartButton = () => {
   const [searchData, setSearch] = useSearchStore();
-
-  console.log("searchData", searchData);
 
   if (searchData?.results?.length && !searchData?.activeItem) {
     const startSession = () => {
@@ -26,19 +25,29 @@ const StartButton = () => {
     };
 
     return (
-      <div
-        style={{
-          border: "1px solid black",
-          borderRadius: "4px",
-          padding: "4px",
+      <GlobalHotKeys
+        keyMap={{
+          START_SESSION: "Meta+Shift+'",
         }}
-        onClick={startSession}
+        handlers={{
+          START_SESSION: startSession,
+        }}
+        allowChanges
       >
-        Start Session
-      </div>
+        <div
+          style={{
+            border: "1px solid black",
+            borderRadius: "4px",
+            padding: "4px",
+          }}
+          onClick={startSession}
+        >
+          Start Session
+        </div>
+      </GlobalHotKeys>
     );
   } else {
-    return "" 
+    return "";
   }
 };
 

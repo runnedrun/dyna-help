@@ -15,40 +15,31 @@ const sampleSearch = {
 //   processing: null,
 // });
 
-const searchStore = new BehaviorSubject(sampleSearch);
+const searchStore = new BehaviorSubject(null);
 
 const getAllResultsNodes = () => {
   return document.querySelectorAll(".node-time.is-overdue");
 };
 
-const hashChange = (clickedEl) => {
-  const hash = window.location.hash || "";
-  const match = hash.match(/q=([^&]*)/);
-  const query = match && match[1];
-
-  if (query) {
-    // const parsedQuery = decodeURIComponent(query)
-    // console.log("sending search", parsedQuery)
-
-    const resultsInterval = setInterval(() => {
-      const results = getAllResultsNodes();
-      if (results.length) {
-        clearInterval(resultsInterval);
-        searchStore.next({
-          query: window.location.href,
-          processing: null,
-          results: results,
-          bookmarkElement: clickedEl,
-        });
-      }
-    }, 200);
-  }
+const bookmarkClicked = (clickedEl) => {
+  const resultsInterval = setInterval(() => {
+    const results = getAllResultsNodes();
+    if (results.length) {
+      clearInterval(resultsInterval);
+      searchStore.next({
+        query: window.location.href,
+        processing: null,
+        results: results,
+        bookmarkElement: clickedEl,
+      });
+    }
+  }, 200);
 };
 
 window.document.addEventListener("click", (e) => {
   const clickedEl = e.target;
-  if (clickedEl?.className?.className?.contains("Bookmark")) {
-    hashChange(clickedEl);
+  if (clickedEl?.className?.includes("Bookmark")) {
+    bookmarkClicked(clickedEl);
   }
 });
 // window.addEventListener("hashchange", hashChange);

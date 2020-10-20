@@ -13,8 +13,11 @@ const Toolbar = () => {
         JUMP_TO_ACTIVE_BOOKMARK: "Meta+Shift+.",
       }}
       handlers={{
-        JUMP_TO_ACTIVE_BOOKMARK: () => searchData?.bookmarkElement?.click(),
+        JUMP_TO_ACTIVE_BOOKMARK: () => {
+          searchData?.bookmarkElement?.click()
+        },
       }}
+      allowChanges
     >
       <div
         style={{ posittion: "absolute", zIndex: "10000", paddingLeft: "20px" }}
