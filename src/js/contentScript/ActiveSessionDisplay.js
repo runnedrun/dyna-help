@@ -1,9 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useSearchStore } from "./searchStore";
+import { useSearchStore, searchStore } from "./searchStore";
 import moment from "moment";
 import updateParentNoteWithTransformer from "./updateParentNoteWithTransformer";
 import { GlobalHotKeys } from "react-hotkeys";
+import { take } from 'rxjs/operators';
+import startNewItem from "./startNewItem"
 
 const itemTimeLimit = 3 * 60 * 1000;
 
@@ -33,8 +35,8 @@ const getUpdatedTextForNote = (noteContent) => {
       ? reviewSpacing[reviewSpacing.indexOf(lastWaitInterval) + 1]
       : reviewSpacing[0];
     const today = moment();
-    const nextDate = date.add(nextDateInterval, "days");
-    const outputString = date.format(dateFormat);
+    const nextDate = today.add(nextDateInterval, "days");
+    const outputString = nextDate.format(dateFormat);
     const finalNoteText = replaceRange(
       noteContent,
       startIndex,
@@ -48,15 +50,31 @@ const getUpdatedTextForNote = (noteContent) => {
   return null;
 };
 
+const autoAdvance = () => {
+  const subscription = searchStore.subscribe((searchData) => {
+    console.log("new data", searchData.results)
+    if (searchData.results && searchData.results[0]) {
+      subscription.unsubscribe()
+      startNewItem(searchData.results[0])
+    }
+  })
+
+  setTimeout(() => {
+    subscription.unsubscribe()
+  }, 1000)
+}
+
 const ActiveSessionDisplay = () => {
   const [searchData, setSearch] = useSearchStore();
   const [currentTime, setCurrentTime] = useState();
 
   const finishItem = () => {
     updateParentNoteWithTransformer(getUpdatedTextForNote).then((finished) => {
+      console.log("finishighhied", finished)
       if (finished) {
         setSearch({ ...searchData, activeItem: null, itemStartedAt: null });
         searchData?.bookmarkElement?.click();
+        autoAdvance()
       }
     });
   };

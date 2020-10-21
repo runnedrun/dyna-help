@@ -39,14 +39,13 @@ const updateParentNoteWithTransformer = (transformer) => {
         parentNoteContent.innerHTML = newContent;
         setTimeout(() => {
           eventFire(parentNoteContent, "keydown");
-          resolve();
+          resolve(true);
         }, 100);
       }, 100);
     });
   } else {
     const dateNode = document.querySelector(".node-time")
     if (dateNode) {
-      console.log("date node")
       dispatchMouseEvent(dateNode)      
     } else {
       dispatchMouseEvent(parentNote);

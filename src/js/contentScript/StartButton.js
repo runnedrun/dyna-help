@@ -1,29 +1,14 @@
 import React from "react";
 import { useSearchStore } from "./searchStore";
 import { GlobalHotKeys } from "react-hotkeys";
+import startNewItem from "./startNewItem";
 
 const StartButton = () => {
   const [searchData, setSearch] = useSearchStore();
 
   if (searchData?.results?.length && !searchData?.activeItem) {
-    const startSession = () => {
-      const startingUrl = window.location.href;
-      const navigationInterval = setInterval(() => {
-        const url = window.location.href;
-        if (url !== startingUrl) {
-          setSearch({
-            ...searchData,
-            activeItem: url,
-            itemStartedAt: Date.now(),
-          });
-          console.log("navigation complete");
-          clearInterval(navigationInterval);
-        }
-      }, 100);
-
-      searchData.results[0].click();
-    };
-
+    const startSession = () =>
+      startNewItem(searchData.results[0], { newSession: true });
     return (
       <GlobalHotKeys
         keyMap={{

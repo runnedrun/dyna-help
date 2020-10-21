@@ -15,16 +15,19 @@ const sampleSearch = {
 //   processing: null,
 // });
 
-const searchStore = new BehaviorSubject(null);
+const searchStore = new BehaviorSubject(sampleSearch);
 
 const getAllResultsNodes = () => {
   return document.querySelectorAll(".node-time.is-overdue");
 };
 
 const bookmarkClicked = (clickedEl) => {
+  const oldSearch = searchStore.getValue()
+  const oldResults = oldSearch?.results || []
   const resultsInterval = setInterval(() => {
     const results = getAllResultsNodes();
-    if (results.length) {
+    if (results.length && results[0] !== oldResults[0]) {
+      console.log("got restuls", results[0])
       clearInterval(resultsInterval);
       searchStore.next({
         query: window.location.href,
